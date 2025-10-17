@@ -3,6 +3,7 @@ import { Loader2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ExplainCodeRequest, ExplainCodeResponse } from "@shared/api";
 
 type Explanation = {
   lineNumber: number;
@@ -68,7 +69,7 @@ function explainLine(line: string, index: number, lines: string[]) {
   const trimmed = line.trim();
 
   if (!trimmed) {
-    return "Blank line used to separate logical sections for readability.";
+    return "";
   }
 
   if (/^\/\//.test(trimmed)) {
@@ -196,19 +197,43 @@ function explainLine(line: string, index: number, lines: string[]) {
   return "Executes this statement as part of the component's logic.";
 }
 
-function analyseCode(code: string): Explanation[] {
+async function analyseCode(code: string): Promise<Explanation[]> {
+  try {
+    const response = await fetch("/api/explain", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code } as ExplainCodeRequest),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to explain code");
+    }
+
+    const data: ExplainCodeResponse = await response.json();
+    return data.explanations;
+  } catch (error) {
+    console.error("Error calling explain API:", error);
+    // Fallback to local analysis if API fails
+    return fallbackAnalysis(code);
+  }
+}
+
+function fallbackAnalysis(code: string): Explanation[] {
   const lines = code.replace(/\r\n/g, "\n").split("\n");
-  return lines.map((line, index) => ({
-    lineNumber: index + 1,
-    code: line,
-    explanation: explainLine(line, index, lines),
-  }));
+  return lines
+    .map((line, index) => ({
+      lineNumber: index + 1,
+      code: line,
+      explanation: explainLine(line, index, lines),
+    }))
+    .filter((item) => item.explanation !== "");
 }
 
 export function CodeExplainPanel({ className, initialCode }: CodeExplainPanelProps) {
-  const defaultSnippet = initialCode ?? sampleSnippets[0].code;
-  const [code, setCode] = useState(defaultSnippet);
-  const [result, setResult] = useState<Explanation[]>(() => analyseCode(defaultSnippet));
+  const [code, setCode] = useState(initialCode ?? "");
+  const [result, setResult] = useState<Explanation[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const timeoutRef = useRef<number | null>(null);
 
@@ -220,25 +245,38 @@ export function CodeExplainPanel({ className, initialCode }: CodeExplainPanelPro
     };
   }, []);
 
-  const runAnalysis = (input: string) => {
+  const runAnalysis = async (input: string) => {
     if (timeoutRef.current) {
       window.clearTimeout(timeoutRef.current);
     }
     setIsProcessing(true);
-    timeoutRef.current = window.setTimeout(() => {
-      setResult(analyseCode(input));
+    
+    try {
+      const explanations = await analyseCode(input);
+      setResult(explanations);
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      setResult([]);
+    } finally {
       setIsProcessing(false);
-      timeoutRef.current = null;
-    }, 320);
+    }
   };
 
   const handleExplain = () => {
     runAnalysis(code);
   };
 
-  const handleSample = (snippet: string) => {
+  const handleSample = async (snippet: string) => {
     setCode(snippet);
-    runAnalysis(snippet);
+    await runAnalysis(snippet);
+  };
+
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
+    // Clear results when code is empty
+    if (!newCode.trim()) {
+      setResult([]);
+    }
   };
 
   return (
@@ -248,7 +286,7 @@ export function CodeExplainPanel({ className, initialCode }: CodeExplainPanelPro
         className,
       )}
     >
-      <div className="flex flex-col gap-6 lg:flex-row">
+      <div className="flex flex-col gap-8 lg:flex-row">
         <div className="w-full lg:w-1/2">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -262,34 +300,24 @@ export function CodeExplainPanel({ className, initialCode }: CodeExplainPanelPro
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {sampleSnippets.map((snippet) => (
-              <button
-                key={snippet.label}
-                type="button"
-                onClick={() => handleSample(snippet.code)}
-                className="rounded-full border border-white/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-white/70 transition hover:border-primary/60 hover:text-white"
-              >
-                {snippet.label}
-              </button>
-            ))}
-          </div>
 
           <textarea
             value={code}
-            onChange={(event) => setCode(event.target.value)}
+            onChange={(event) => handleCodeChange(event.target.value)}
             spellCheck={false}
-            className="mt-4 h-64 w-full rounded-2xl border border-white/10 bg-[rgba(8,12,28,0.9)] p-4 font-mono text-sm leading-relaxed text-white shadow-inner outline-none focus:border-primary focus:ring-2 focus:ring-primary/60"
+            placeholder="Paste a snippet to explain"
+            className="mt-4 h-64 w-full rounded-2xl border border-white/10 bg-[rgba(8,12,28,0.9)] p-4 font-mono text-sm leading-relaxed text-white shadow-inner outline-none focus:border-primary focus:ring-2 focus:ring-primary/60 placeholder:text-white/40"
             aria-label="JavaScript or React code snippet"
+            aria-describedby="code-input-help"
           />
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-white/50">
+            <p id="code-input-help" className="text-xs text-white/50">
               Linewise analyses React and JavaScript patterns to explain what each line does in plain English.
             </p>
             <Button
               onClick={handleExplain}
-              className="rounded-full bg-primary px-6 text-primary-foreground hover:bg-primary/90"
+              className="rounded-full px-6"
               disabled={isProcessing || !code.trim()}
             >
               {isProcessing ? (
@@ -317,22 +345,30 @@ export function CodeExplainPanel({ className, initialCode }: CodeExplainPanelPro
           </div>
 
           <div className="mt-4 max-h-[22rem] space-y-3 overflow-y-auto pr-1">
-            {result.map((item) => (
-              <div
-                key={item.lineNumber}
-                className="flex gap-3 rounded-2xl border border-white/10 bg-[rgba(16,20,40,0.9)] p-4 shadow-sm"
-              >
-                <div className="mt-0.5 text-xs font-semibold text-primary/80">
-                  {String(item.lineNumber).padStart(2, "0")}
+            {result.length > 0 ? (
+              result.map((item) => (
+                <div
+                  key={item.lineNumber}
+                  className="flex gap-3 rounded-2xl border border-white/10 bg-[rgba(16,20,40,0.9)] p-4 shadow-sm"
+                >
+                  <div className="mt-0.5 text-xs font-semibold text-primary/80">
+                    {String(item.lineNumber).padStart(2, "0")}
+                  </div>
+                  <div className="space-y-1">
+                    <pre className="whitespace-pre-wrap font-mono text-[13px] leading-relaxed text-white/80">
+                      {item.code.length ? item.code : "·"}
+                    </pre>
+                    <p className="text-sm text-white/70">{item.explanation}</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <pre className="whitespace-pre-wrap font-mono text-[13px] leading-relaxed text-white/80">
-                    {item.code.length ? item.code : "·"}
-                  </pre>
-                  <p className="text-sm text-white/70">{item.explanation}</p>
-                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-64 rounded-2xl border border-white/10 bg-[rgba(16,20,40,0.9)] p-8">
+                <p className="text-white/40 text-center">
+                  Your AI summary will appear here
+                </p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

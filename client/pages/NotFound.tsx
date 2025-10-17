@@ -13,7 +13,7 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-24 text-white sm:px-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-24 text-white sm:px-6">
       <span className="text-sm font-semibold uppercase tracking-[0.3em] text-primary/80">
         404 — Page not found
       </span>

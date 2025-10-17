@@ -11,7 +11,6 @@ type NavLink =
 
 const navLinks: NavLink[] = [
   { label: "Features", href: "/#features", type: "anchor" },
-  { label: "How it works", href: "/#how-it-works", type: "anchor" },
   { label: "Explain code", to: "/explain", type: "route" },
 ];
 

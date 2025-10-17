@@ -3,7 +3,6 @@ import { Github, Twitter } from "lucide-react";
 
 const footerLinks: { label: string; href: string; isRoute?: boolean }[] = [
   { label: "Features", href: "/#features" },
-  { label: "How it works", href: "/#how-it-works" },
   { label: "Explain", href: "/explain", isRoute: true },
 ];
 

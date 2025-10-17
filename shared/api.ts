@@ -10,3 +10,21 @@
 export interface DemoResponse {
   message: string;
 }
+
+/**
+ * Request type for /api/explain
+ */
+export interface ExplainCodeRequest {
+  code: string;
+}
+
+/**
+ * Response type for /api/explain
+ */
+export interface ExplainCodeResponse {
+  explanations: Array<{
+    lineNumber: number;
+    code: string;
+    explanation: string;
+  }>;
+}

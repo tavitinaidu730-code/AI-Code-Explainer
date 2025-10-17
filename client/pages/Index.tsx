@@ -25,23 +25,6 @@ const features = [
   },
 ];
 
-const steps = [
-  {
-    title: "Paste or type code",
-    description:
-      "Copy any component or function you're unsure about and paste it directly into the explainer panel.",
-  },
-  {
-    title: "Review the breakdown",
-    description:
-      "Linewise parses each line, surfacing why the logic exists and what data is flowing through the snippet.",
-  },
-  {
-    title: "Share the insight",
-    description:
-      "Export or copy the explanation to pair with pull requests, docs, or messages to teammates.",
-  },
-];
 
 export default function Index() {
   return (
@@ -64,13 +47,6 @@ export default function Index() {
                 Try the explainer
                 <ArrowRight className="h-4 w-4" />
               </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="rounded-full border border-white/10 bg-transparent px-6 text-base text-white/70 hover:border-white/30 hover:bg-white/10 hover:text-white"
-            >
-              <a href="/#how-it-works">See how it works</a>
             </Button>
           </div>
           <div className="grid grid-cols-2 gap-6 pt-6 text-sm text-white/60 sm:grid-cols-3">
@@ -125,33 +101,6 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="how-it-works" className="space-y-10 text-white">
-        <div className="max-w-xl space-y-4">
-          <p className="text-sm font-medium uppercase tracking-[0.28em] text-primary/80">
-            How it works
-          </p>
-          <h2 className="text-3xl font-semibold leading-tight">
-            Three steps to transform any snippet into plain English
-          </h2>
-          <p className="text-white/70">
-            The Linewise explainer guides you through unfamiliar code without leaving your editor or docs.
-          </p>
-        </div>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {steps.map((step, index) => (
-            <div
-              key={step.title}
-              className="relative rounded-2xl border border-white/10 bg-[rgba(16,20,40,0.8)] p-6 backdrop-blur"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-primary/20 text-lg font-semibold text-primary">
-                {index + 1}
-              </div>
-              <h3 className="mt-6 text-xl font-semibold text-white">{step.title}</h3>
-              <p className="mt-2 text-sm text-white/70">{step.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       <section className="rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-10 text-white">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center">
@@ -186,7 +135,7 @@ export default function Index() {
         </div>
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <Button asChild className="rounded-full bg-white px-7 text-base text-gray-900 hover:bg-white/90">
-            <Link to="/explain">Start explaining code</Link>
+            <Link to="/explain">Try the explainer</Link>
           </Button>
           <p className="text-sm text-white/60">No sign-up required • Works in the browser</p>
         </div>
