@@ -82,7 +82,9 @@ async function explainCodeWithOpenAI(code: string): Promise<ExplainCodeResponse[
   }
   
   try {
-    const prompt = `You are an expert code explainer. Analyze the following JavaScript/React code and provide a line-by-line explanation. 
+    const prompt = `You are a Universal Code Explainer. Analyze the following code and provide a line-by-line explanation.
+
+IMPORTANT: Detect the programming language automatically and adapt your explanation accordingly.
 
 For each non-empty line, provide:
 1. The line number
@@ -90,14 +92,15 @@ For each non-empty line, provide:
 3. A clear, educational explanation of what the line does and why it's important
 
 Focus on:
-- React hooks and patterns
-- JavaScript concepts
+- Language-specific concepts and patterns
+- Framework-specific features (if applicable)
 - Code structure and flow
-- Best practices
-- Common pitfalls
+- Best practices for that language
+- Common pitfalls and gotchas
+- Performance considerations
 
 Code to analyze:
-\`\`\`javascript
+\`\`\`
 ${code}
 \`\`\`
 
@@ -106,14 +109,14 @@ Return your response as a JSON array where each object has:
 - code: string (exact line)
 - explanation: string (clear explanation)
 
-Skip empty lines. Be educational and help developers understand both the "what" and "why".`;
+Skip empty lines. Be educational and help developers understand both the "what" and "why". Make explanations beginner-friendly but comprehensive.`;
 
     const completion = await openaiClient.chat.completions.create({
       model: "gpt-4",
       messages: [
         {
           role: "system",
-          content: "You are an expert JavaScript and React developer who explains code clearly and educationally. Always return valid JSON."
+          content: "You are a Universal Code Explainer who can analyze and explain code in any programming language (JavaScript, Python, Java, C#, C++, Go, Rust, SQL, HTML/CSS, etc.). Always return valid JSON. Adapt your explanations to the specific language and framework being used."
         },
         {
           role: "user",

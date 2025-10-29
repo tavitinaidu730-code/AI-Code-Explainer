@@ -8,10 +8,10 @@ export default function Explain() {
           Real-time explainer
         </p>
         <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
-          Decode any snippet with AI-powered clarity
+          Universal Code Explainer
         </h1>
         <p className="max-w-2xl text-lg text-white/70">
-          Paste JavaScript or React code and Linewise will walk you through what each line is doing, highlighting state, props, side effects, and JSX so you can move faster with confidence.
+          Paste code in any programming language (JavaScript, Python, Java, C#, C++, Go, Rust, SQL, HTML/CSS, etc.) and get clear, educational explanations of what each line does.
         </p>
       </section>
 

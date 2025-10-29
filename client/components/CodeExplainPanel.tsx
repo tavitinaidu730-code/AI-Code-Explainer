@@ -18,7 +18,7 @@ type CodeExplainPanelProps = {
 
 const sampleSnippets = [
   {
-    label: "Stateful counter",
+    label: "React Counter",
     code: `import { useState } from "react";
 
 export function Counter() {
@@ -33,35 +33,52 @@ export function Counter() {
       Clicked {count} times
     </button>
   );
-}
-`,
+}`,
   },
   {
-    label: "List renderer",
-    code: `type Task = {
-  id: number;
-  title: string;
-  done?: boolean;
-};
+    label: "Python Function",
+    code: `def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
 
-const tasks: Task[] = [
-  { id: 1, title: "Design the UI", done: true },
-  { id: 2, title: "Write documentation" },
-];
+def main():
+    for i in range(10):
+        print(f"F({i}) = {fibonacci(i)}")
 
-export function TaskList() {
-  return (
-    <ul>
-      {tasks.map((task) => (
-        <li key={task.id}>
-          <input type="checkbox" defaultChecked={task.done} />
-          <span>{task.title}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-`,
+if __name__ == "__main__":
+    main()`,
+  },
+  {
+    label: "Java Class",
+    code: `public class Calculator {
+    private double result;
+    
+    public Calculator() {
+        this.result = 0.0;
+    }
+    
+    public void add(double value) {
+        this.result += value;
+    }
+    
+    public double getResult() {
+        return this.result;
+    }
+}`,
+  },
+  {
+    label: "SQL Query",
+    code: `SELECT 
+    u.name,
+    COUNT(o.id) as order_count,
+    SUM(o.total) as total_spent
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+WHERE u.created_at >= '2023-01-01'
+GROUP BY u.id, u.name
+HAVING COUNT(o.id) > 5
+ORDER BY total_spent DESC;`,
   },
 ];
 
@@ -305,15 +322,15 @@ export function CodeExplainPanel({ className, initialCode }: CodeExplainPanelPro
             value={code}
             onChange={(event) => handleCodeChange(event.target.value)}
             spellCheck={false}
-            placeholder="Paste a snippet to explain"
+            placeholder="Paste any code snippet (JavaScript, Python, Java, C#, C++, Go, Rust, SQL, HTML/CSS, etc.)"
             className="mt-4 h-64 w-full rounded-2xl border border-white/10 bg-[rgba(8,12,28,0.9)] p-4 font-mono text-sm leading-relaxed text-white shadow-inner outline-none focus:border-primary focus:ring-2 focus:ring-primary/60 placeholder:text-white/40"
-            aria-label="JavaScript or React code snippet"
+            aria-label="Code snippet in any programming language"
             aria-describedby="code-input-help"
           />
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p id="code-input-help" className="text-xs text-white/50">
-              Linewise analyses React and JavaScript patterns to explain what each line does in plain English.
+              Universal Code Explainer analyzes code in any programming language and provides clear, educational explanations.
             </p>
             <Button
               onClick={handleExplain}
